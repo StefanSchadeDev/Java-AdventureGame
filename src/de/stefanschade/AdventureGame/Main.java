@@ -17,7 +17,7 @@ public class Main {
     private static World world = new World();
     private static StateOfPlayer player = new StateOfPlayer();
     private static StateOfGame game = new StateOfGame();
-    
+            
 
 
     public static void main(String[] args) {
