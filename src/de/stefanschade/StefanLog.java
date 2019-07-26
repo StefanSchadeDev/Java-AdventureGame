@@ -2,23 +2,27 @@ package de.stefanschade;
 
 public class StefanLog {
 
-    StefanLog instance = null;
+    private static StefanLog instance = null;
+    private int loglevel = 0;
 
     private StefanLog() {
     }
 
-    public StefanLog getInstance() {
+    public static StefanLog getInstance() {
         if (instance == null) {
-            this.instance = new StefanLog();
+            instance = new StefanLog();
         }
         return instance;
     }
 
-    public void log(LEVEL level, String msg, Throwable exe) {
-
-
+    public void setLoglevel(int loglevel) {
+        this.loglevel = loglevel;
     }
 
-
+    public void log(String msg, int level) {
+        if (this.loglevel >= level) {
+            System.out.println(msg);
+        }
+    }
 
 }

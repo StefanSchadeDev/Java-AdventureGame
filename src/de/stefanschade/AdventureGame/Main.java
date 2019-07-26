@@ -9,18 +9,17 @@ import java.util.Scanner;
 
 public class Main {
 
-    StefanLog log = log.getInstance();
-
-    log.LEVEL a = StefanLog.LEVEL.a;
-
 
     private static World world = new World();
     private static StateOfPlayer player = new StateOfPlayer();
     private static StateOfGame game = new StateOfGame();
-            
 
 
     public static void main(String[] args) {
+
+        // get singelton
+        StefanLog LogObject = StefanLog.getInstance();
+        LogObject.setLoglevel(1000);
 
         Scanner sc = new Scanner(System.in);
 
@@ -37,12 +36,12 @@ public class Main {
                 System.out.println("You can not go in this direction!");
             }
 
-            if (input == "quit") {
+            System.out.println(input);
+            if (input.trim().equalsIgnoreCase("quit")) {
                 player.quit();
             }
 
         }
-
 
     }
 
