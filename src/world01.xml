@@ -1,0 +1,137 @@
+String[] inputCell = inputLine.split(";");
+
+
+        if (line != 1) { //
+        DirectionForExits tmpPassagesPerRoom = new DirectionForExits(roomOfOrigin, mapDirectionExitTMP);
+        exitsByOriginTMP.put(roomOfOrigin,tmpPassagesPerRoom);
+        }
+
+
+
+        if (roomOfOrigin != roomlastProcessed && !(roomsAlreadyProcessed.size() == 0)) {
+        oneOriginFinished = true;
+        } else if (br.) {
+        } else {
+        oneOriginFinished = false;
+        }
+
+
+
+
+
+
+        if (flagFirstLineOfOneOriginBlock) {
+        // flash
+        }
+
+
+        mapDirectionExitTMP.put(roomlastProcessed, exitsByOriginTMP)
+
+        // normal line, construct single exit
+
+        if (!flagOneOriginFinished)
+
+
+        if (roomsAlreadyProcessed.contains(currentRoomOfOrigin) && flagFirstLineOfOneOriginBlock) {
+        logger.log(Level.SEVERE, "Room of Origin ID (" + currentRoomOfOrigin + ") encountered in line "
+        + line + " of file: " + filename + " but was processed before!");
+        System.exit(-2);
+        } else {
+        roomsAlreadyProcessed.add(currentRoomOfOrigin);
+
+
+        }
+
+        if (flagOneOriginFinished) {
+
+        //                  mapDirectionExitTMP.put(roomlastProcessed,exitsByOriginTMP)
+
+
+        logger.log(Level.INFO, "Reading Room -> originRoomID: " + roomNumber + " \tname: " + roomName.trim()
+        + " \tdesc: " + roomDescription.trim());
+        roomMapEntrytmp.put(roomNumber, new RoomEntry(roomNumber, roomName, roomDescription));
+
+        }
+
+
+        }
+        } catch(
+        IOException e)
+
+        {
+        e.printStackTrace();
+        logger.log(Level.SEVERE, "IOException while loading rooms ");
+        System.exit(-2);
+        }
+        //        this.roomMapEntry = roomMapEntrytmp;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        <?xml version = "1.0"?>
+
+    <Rooms>
+        <Name>
+            Main world Map
+        </Name>
+        <RoomEntry>
+            <Id>
+                1
+            </Id>>
+            <Name>
+                In a Wood
+            </Name>
+            <Description>
+                You are in a wood, there are trees all around!
+            </Description>
+        </RoomEntry>
+        <RoomEntry>
+            <Id>
+                1
+            </Id>>
+            <Name>
+                In a Cave
+            </Name>
+            <Description>
+                You are in a cave, it is dark!
+            </Description>
+        </RoomEntry>
+    </Rooms>
+    <Passages>
+        <Name>
+            Main world Map
+        </Name>
+        <PassagesPerRoom>
+            <Id_Origin>
+                1
+            </Id_Origin>
+            <Direction>
+                south
+            </Direction>
+            <Id_Destination>
+                2
+            </Id_Destination>
+        </PassagesPerRoom>
+        <PassagesPerRoom>
+            <Id_Origin>
+                2
+            </Id_Origin>
+            <Direction>
+                north
+            </Direction>
+            <Id_Destination>
+                1
+            </Id_Destination>
+        </PassagesPerRoom>
+    </Passages>
+</World>
