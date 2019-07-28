@@ -17,7 +17,7 @@ public class Passages {
 
 
     public Passages(String filename) {
-        logger.log(Level.INFO, "constructor");
+        logger.log(Level.INFO, "constructorxxx");
         if (filename == null) {
             logger.log(Level.SEVERE, "Passages constructor was called with filename = null");
             System.exit(-2);

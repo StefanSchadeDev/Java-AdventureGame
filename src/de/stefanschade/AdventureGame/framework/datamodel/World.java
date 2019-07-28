@@ -14,7 +14,7 @@ public final class World {
     private static final Logger LOGGER = Logger.getLogger(World.class.getName());
     private static final Logger[] LOGGERS
             = new Logger[]{LOGGER,
-            Logger.getLogger(Passages.class.getName()), // Passages
+//            Logger.getLogger(Passages.class.getName()), // Passages
             Logger.getLogger(Rooms.class.getName())}; // Rooms
     private static final String FILE_ROOMS = "./resources/Rooms.csv";
     private static final String FILE_PASSAGES = "./resources/Passages.csv";

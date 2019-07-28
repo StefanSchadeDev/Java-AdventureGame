@@ -13,24 +13,34 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class Rooms {
+    private static final String CSV_SEPERATOR = ";";
     private final String name;
     private final Map<Integer, RoomEntry> roomMapEntry;
     private final Logger logger = Logger.getLogger(Rooms.class.getName());
-    private static final String CSV_SEPERATOR = ";";
 
     Rooms(String filename) {
 
         StringBuffer logmsg = new StringBuffer();
+        logmsg.append("Constructor called, ");
+        logger.log(Level.INFO, logmsg.toString());
 
-        logger.log(Level.FINEST, "Rooms Constructor called, filename: "+filename);
+        logmsg.append("Filename:");
         if (filename == null) {
-            logger.log(Level.SEVERE, "Room constructor was called with filename = null");
+            logmsg.append("Filename: null!");
+            logger.log(Level.SEVERE, logmsg.toString());
             System.exit(-2);
         } else if (filename.isEmpty()) {
-            logger.log(Level.SEVERE, "Room constructor was called with empty filename");
+            logmsg.append("Filename: empty string");
+            logger.log(Level.SEVERE, logmsg.toString());
             System.exit(-2);
         }
+        logmsg.append("Filename: ");
+        logmsg.append(filename);
+        logger.log(Level.FINE, logmsg.toString());
+
         this.name = "Rooms Object read from file: " + filename;
+
+        logmsg = new StringBuffer();
         Map<Integer, RoomEntry> roomMapEntrytmp = new HashMap<>();
         Set<Integer> roomsAlreadyProcessed = new HashSet<>();
         String inputLine;
@@ -40,12 +50,12 @@ public class Rooms {
             BufferedReader br = Files.newBufferedReader(path);
             while ((inputLine = br.readLine()) != null) {
                 line++;
-                logmsg.append("Parsing line #");
-                logmsg.append(+line);
+                logmsg.append(" Parsing line #");
+                logmsg.append(line);
                 logmsg.append(" -> ");
                 if (inputLine.trim().isEmpty() || inputLine.startsWith("#")) {
                     logmsg.append("empty or comment\n");
-                    logger.log(Level.FINE,logmsg.toString());
+                    logger.log(Level.FINE, logmsg.toString());
                     continue; // ignore empty lines and comments
                 }
                 Integer roomNumber = null;
@@ -58,7 +68,7 @@ public class Rooms {
                         logmsg.append("Room ID (");
                         logmsg.append(inputCell[0]);
                         logmsg.append(") already processed\n");
-                        logger.log(Level.SEVERE,logmsg.toString());
+                        logger.log(Level.SEVERE, logmsg.toString());
                         System.exit(-2);
                     } else {
                         roomsAlreadyProcessed.add(roomNumber);
@@ -68,25 +78,26 @@ public class Rooms {
                 } catch (NumberFormatException e) {
                     e.printStackTrace();
                     logmsg.append("Room ID not of type Integer!\n");
-                    logger.log(Level.SEVERE,logmsg.toString(),e);
+                    logger.log(Level.SEVERE, logmsg.toString(), e);
                     System.exit(-2);
                 } catch (ArrayIndexOutOfBoundsException e) {
                     e.printStackTrace();
                     logmsg.append("insufficient parameters in line\n");
-                    logger.log(Level.SEVERE,logmsg.toString(),e);
+                    logger.log(Level.SEVERE, logmsg.toString(), e);
                     System.exit(-2);
                 }
                 logmsg.append("Room ID not of type Integer!\n");
-                logger.log(Level.FINE,logmsg.toString());
+                logger.log(Level.FINE, logmsg.toString());
 
                 logmsg.append("Room ID: ");
                 logmsg.append(roomNumber);
                 logmsg.append(" Name: ");
-                logmsg.append(roomName);;
+                logmsg.append(roomName);
+                ;
                 logmsg.append(" Description: ");
                 logmsg.append(roomDescription);
                 logmsg.append("\n");
-                logger.log(Level.FINE,logmsg.toString());
+                logger.log(Level.FINE, logmsg.toString());
                 roomMapEntrytmp.put(roomNumber, new RoomEntry(roomNumber, roomName, roomDescription));
             }
         } catch (IOException e) {
