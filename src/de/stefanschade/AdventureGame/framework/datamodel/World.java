@@ -1,10 +1,7 @@
 package de.stefanschade.AdventureGame.framework.datamodel;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.FileHandler;
-import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
 public final class World {
@@ -12,32 +9,8 @@ public final class World {
     public static final int START_ROOM = 1;
     // init of all loggers
     private static final Logger LOGGER = Logger.getLogger(World.class.getName());
-    private static final Logger[] LOGGERS
-            = new Logger[]{LOGGER,
-//            Logger.getLogger(Passages.class.getName()), // Passages
-            Logger.getLogger(Rooms.class.getName())}; // Rooms
     private static final String FILE_ROOMS = "./resources/Rooms.csv";
     private static final String FILE_PASSAGES = "./resources/Passages.csv";
-
-    static {
-        System.setProperty("java.util.logging.config.file", "./resources/logging.properties");
-        try {
-            LogManager.getLogManager().readConfiguration();
-        } catch (Exception e) {
-            e.printStackTrace();
-            System.out.println("Logging properites could not be read, exit");
-            System.exit(-1);
-        }
-
-        try {
-            FileHandler f = new FileHandler("./out/logfile.log", false);
-            for (Logger l : LOGGERS) {
-                l.addHandler(f);
-            }
-        } catch (IOException e) {
-            throw new ExceptionInInitializerError(e);
-        }
-    }
 
     private final Rooms roomsInWorld;
     private final Passages passagesInWorld;
