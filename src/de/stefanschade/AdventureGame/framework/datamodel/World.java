@@ -1,74 +1,55 @@
 package de.stefanschade.AdventureGame.framework.datamodel;
 
-import de.stefanschade.AdventureGame.Main;
-
-import java.util.logging.LogManager;
-import java.util.logging.Logger;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.FileHandler;
+import java.util.logging.LogManager;
+import java.util.logging.Logger;
 
 public final class World {
 
+    public static final int START_ROOM = 1;
+    // init of all loggers
+    private static final Logger LOGGER = Logger.getLogger(World.class.getName());
     private static final Logger[] LOGGERS
-            = new Logger[]{Logger.getLogger(Passages.class.getName()),
-            Logger.getLogger(Rooms.class.getName())};
-
-    private static final FileHandler FILE;
+            = new Logger[]{LOGGER,
+            Logger.getLogger(Passages.class.getName()), // Passages
+            Logger.getLogger(Rooms.class.getName())}; // Rooms
+    private static final String FILE_ROOMS = "./resources/Rooms.csv";
+    private static final String FILE_PASSAGES = "./resources/Passages.csv";
 
     static {
-
-        for (Logger l : LOGGERS) {
-            System.out.println(l.getName());
-        }
-
         System.setProperty("java.util.logging.config.file", "./resources/logging.properties");
         try {
             LogManager.getLogManager().readConfiguration();
         } catch (Exception e) {
             e.printStackTrace();
+            System.out.println("Logging properites could not be read, exit");
+            System.exit(-1);
         }
 
         try {
-            FileHandler f = new FileHandler("./out/logfile.log", true);
-            try {
-                for (Logger l : LOGGERS) {
-                    l.addHandler(f);
-                }
-                FILE = f;
-                f = null;
-            } finally {
-                if (f != null) {
-                    f.close();
-                    for (Logger l : LOGGERS) {
-//                        l.removeHandler(f);
-                        l.setUseParentHandlers(false);
-                    }
-                }
+            FileHandler f = new FileHandler("./out/logfile.log", false);
+            for (Logger l : LOGGERS) {
+                l.addHandler(f);
             }
         } catch (IOException e) {
             throw new ExceptionInInitializerError(e);
         }
     }
 
-
-
-    public static final int START_ROOM = 1;
-
-    private static final String FILE_ROOMS = "./resources/Rooms.csv";
-    private static final String FILE_PASSAGES = "./resources/Passages.csv";
-
     private final Rooms roomsInWorld;
     private final Passages passagesInWorld;
-//    private final java.util.logging.Logger logger = new java.util.logging.Logger("World");
 
     public World() {
         roomsInWorld = new Rooms(FILE_ROOMS);
         passagesInWorld = new Passages(FILE_PASSAGES);
     }
 
-    private static void captureRoom(Map<Integer, Rooms.RoomEntry> rooms, Map<Integer, Passages.ExitsForOneOrigin> passages, Integer id, Integer north, Integer east, Integer west, Integer south, String name, String description) {
+    private static void captureRoom
+            (Map<Integer, Rooms.RoomEntry> rooms, Map<Integer, Passages.ExitsForOneOrigin> passages, Integer
+                    id, Integer north, Integer east, Integer west, Integer south, String name, String description) {
         Map<String, Passages.Exit> exits = new HashMap<>();
         if (north != null) exits.put("north", new Passages.Exit(north));
         if (east != null) exits.put("east", new Passages.Exit(east));
@@ -85,14 +66,26 @@ public final class World {
     }
 
     public boolean isValidPassage(StateOfPlayer player, String direction) {
+        StringBuffer sb = new StringBuffer();
+        boolean returnvalue;
+
+        sb.append("isValidPassage() ");
+        sb.append("Origin: ");
+        sb.append(player.getCurrentRoom());
+        sb.append("Direction: ");
+        sb.append(direction);
+        sb.append(" -> ");
+
         int currentRoom = player.getCurrentRoom();
         if (this.passagesInWorld.isValidPassage(currentRoom, direction)) {
-            Main.log("passage from rooom  " + player.getCurrentRoom() + " to " + direction
-                    + " is validated as: " + this.passagesInWorld.getDestination(currentRoom, direction));
-            return true;
+            sb.append("valid\n");
+            returnvalue = true;
         } else {
-            return false;
+            returnvalue = false;
         }
+
+
+        return returnvalue;
     }
 
     public String getRoomDescription(StateOfPlayer player) {
@@ -109,7 +102,7 @@ public final class World {
 
 
     public void changeRoom(StateOfPlayer player, String direction) {
-        Main.log("change rooom from " + player.getCurrentRoom() + " direction " + direction);
+        //   Main.log("change rooom from " + player.getCurrentRoom() + " direction " + direction);
         int currentRoom = player.getCurrentRoom();
         int destinationRoom = this.passagesInWorld.getDestination(currentRoom, direction);
         player.setCurrentRoom(destinationRoom);

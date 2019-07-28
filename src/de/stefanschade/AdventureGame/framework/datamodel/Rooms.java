@@ -22,7 +22,7 @@ public class Rooms {
 
         StringBuffer logmsg = new StringBuffer();
 
-        logger.log(Level.INFO, "Rooms Constructor called, filename: "+filename);
+        logger.log(Level.FINEST, "Rooms Constructor called, filename: "+filename);
         if (filename == null) {
             logger.log(Level.SEVERE, "Room constructor was called with filename = null");
             System.exit(-2);
