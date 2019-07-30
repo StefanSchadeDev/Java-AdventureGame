@@ -19,7 +19,6 @@ public class Rooms {
     private final Logger logger = Logger.getLogger(Rooms.class.getName());
 
     Rooms(String filename) {
-
         StringBuffer logmsg = new StringBuffer();
         logmsg.append("Constructor called -> ");
         logmsg.append("Filename:");
@@ -51,7 +50,6 @@ public class Rooms {
                 logmsg.append(" -> ");
                 if (inputLine.trim().isEmpty() || inputLine.startsWith("#")) {
                     logmsg.append("empty");
-                    logger.log(Level.FINE, logmsg.toString());
                     continue; // ignore empty lines and comments
                 }
                 Integer roomNumber = null;
@@ -83,13 +81,11 @@ public class Rooms {
                     logger.log(Level.SEVERE, logmsg.toString(), e);
                     System.exit(-2);
                 }
-                logger.log(Level.FINE, logmsg.toString());
 
                 logmsg.append("Room ID: ");
                 logmsg.append(roomNumber);
                 logmsg.append(" Name: ");
                 logmsg.append(roomName);
-                ;
                 logmsg.append(" Description: ");
                 logmsg.append(roomDescription);
                 logger.log(Level.INFO, logmsg.toString());
