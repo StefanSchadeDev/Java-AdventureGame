@@ -1,4 +1,6 @@
-package de.stefanschade.AdventureGame.framework.datamodel;
+package de.stefanschade.AdventureGame.framework.datamodel.immutables;
+
+import net.jcip.annotations.Immutable;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -12,6 +14,14 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * In the current implementation, everything is
+ *
+ * @author  Stefan Schade
+ * @version prerelease
+ */
+
+@Immutable
 public class Rooms {
     private static final String CSV_SEPERATOR = ";";
     private final String name;
@@ -127,6 +137,7 @@ public class Rooms {
         return null;
     }
 
+    @Immutable
     static final class RoomEntry {
         private final int roomID;
         private final String name;

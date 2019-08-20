@@ -2,7 +2,7 @@ package de.stefanschade.AdventureGame;
 
 import de.stefanschade.AdventureGame.framework.datamodel.StateOfGame;
 import de.stefanschade.AdventureGame.framework.datamodel.StateOfPlayer;
-import de.stefanschade.AdventureGame.framework.datamodel.World;
+import de.stefanschade.AdventureGame.framework.datamodel.immutables.World;
 
 import java.util.NoSuchElementException;
 import java.util.Scanner;

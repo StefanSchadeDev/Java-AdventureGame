@@ -1,5 +1,7 @@
 package de.stefanschade.AdventureGame.framework.datamodel;
 
+import de.stefanschade.AdventureGame.framework.datamodel.immutables.World;
+
 public class StateOfPlayer {
 
     private int currentRoom = World.START_ROOM;

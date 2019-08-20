@@ -1,4 +1,6 @@
-package de.stefanschade.AdventureGame.framework.datamodel;
+package de.stefanschade.AdventureGame.framework.datamodel.immutables;
+
+import net.jcip.annotations.Immutable;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -9,6 +11,7 @@ import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+@Immutable
 public class Passages {
     private String name;
     private Map<Integer, ExitsForOneOrigin> exitsByOrigin;
@@ -147,6 +150,7 @@ public class Passages {
 
     // static class, as we need the constructor before we have an instance of the immutable enclosing class.
     // Association is modelled via the map in the enclosing class
+    @Immutable
     static final class Exit {
         private final int destination;
 
@@ -172,7 +176,7 @@ public class Passages {
         return returnvalue;
     }
 
-
+    @Immutable
     static final class ExitsForOneOrigin {
         private final Map<String, Exit> mapDirectionToDestination;
         private final int originRoomID;

@@ -1,4 +1,6 @@
-package de.stefanschade.AdventureGame.framework.datamodel;
+package de.stefanschade.AdventureGame.framework.datamodel.immutables;
+
+import de.stefanschade.AdventureGame.framework.datamodel.StateOfPlayer;
 
 import java.util.HashMap;
 import java.util.Map;
