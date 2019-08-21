@@ -24,8 +24,15 @@ public final class World {
     }
 
     private static void captureRoom
-            (Map<Integer, Room> rooms, Map<Integer, PassagesByOrigin> passages, Integer
-                    id, Integer north, Integer east, Integer west, Integer south, String name, String description) {
+            (Map<Integer, Room> rooms,
+             Map<Integer, PassagesByOrigin> passages,
+             Integer id,
+             Integer north,
+             Integer east,
+             Integer west,
+             Integer south,
+             String name,
+             String description) {
         Map<String, Passage> exits = new HashMap<>();
         if (north != null) exits.put("north", new Passage(north));
         if (east != null) exits.put("east", new Passage(east));

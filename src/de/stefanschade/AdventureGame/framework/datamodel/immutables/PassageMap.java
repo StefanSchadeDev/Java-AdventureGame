@@ -13,14 +13,8 @@ public class PassageMap {
     private static final Logger logger = Logger.getLogger(PassageMap.class.getName());
     private Map<Integer, PassagesByOrigin> exitsByOrigin;
 
-
     public PassageMap(Map<Integer, PassagesByOrigin> exitsByOrigintmp) {
         this.exitsByOrigin = new HashMap<>(exitsByOrigintmp);
-    }
-
-
-    public static void readPassagesFile(String filename) {
-
     }
 
     private PassagesByOrigin getPassage(int i) {
