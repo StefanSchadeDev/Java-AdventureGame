@@ -2,6 +2,7 @@ package de.stefanschade.AdventureGame.framework.datamodel.immutables;
 
 import net.jcip.annotations.Immutable;
 
+import java.io.IOException;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -14,7 +15,7 @@ public class RoomMap {
     private final Map<Integer, Room> roomMapEntry;
 
 
-    RoomMap(String filename) {
+    RoomMap(String filename) throws IOException {
         this.name = "RoomMap Object read from file: " + filename;
         this.roomMapEntry = RoomFile.readMapFromFile(filename);
     }

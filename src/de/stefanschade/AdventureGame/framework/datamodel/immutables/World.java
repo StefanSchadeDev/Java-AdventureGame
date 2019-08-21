@@ -2,6 +2,7 @@ package de.stefanschade.AdventureGame.framework.datamodel.immutables;
 
 import de.stefanschade.AdventureGame.framework.datamodel.StateOfPlayer;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
@@ -17,7 +18,7 @@ public final class World {
     private final RoomMap roomsInWorld;
     private final PassageMap passagesInWorld;
 
-    public World() {
+    public World() throws IOException {
         roomsInWorld = new RoomMap(FILE_ROOMS);
         passagesInWorld = new PassageMap(FILE_PASSAGES);
 
