@@ -23,30 +23,19 @@ public class PassageFile {
         Map<String, Passage> mapDirectionExitTMP = new HashMap<>();
         Set<Integer> originsAlreadyProcessed = new HashSet<>();
 
-        Integer roomOfOriginLastLine = null;
-        boolean flagBlockWasFinished = false;
-        boolean flagFirstLineOfBlock = true;
-        boolean eofReachedFlag = false;
-
         int line = 0;
 
         Path path = Paths.get(filename);
         BufferedReader br = Files.newBufferedReader(path);
-        while (!eofReachedFlag) {
 
-            PassageFileParser passageFileParser = new PassageFileParser(filename,
-                    exitsByOriginTMP,
-                    mapDirectionExitTMP,
-                    originsAlreadyProcessed,
-                    roomOfOriginLastLine,
-                    flagFirstLineOfBlock,
-                    eofReachedFlag
-            ).parseNextLine(br.readLine());
+        PassageFileParser passageFileParser = new PassageFileParser(filename,
+                exitsByOriginTMP,
+                mapDirectionExitTMP,
+                originsAlreadyProcessed
+                );
 
-            mapDirectionExitTMP = passageFileParser.getMapDirectionExitTMP();
-            roomOfOriginLastLine = passageFileParser.getRoomOfOriginLastLine();
-            flagFirstLineOfBlock = passageFileParser.isFirstLineOfBlockFlag();
-            eofReachedFlag = passageFileParser.isflagEOFwasReached();
+        while (!passageFileParser.isEofReached()) {
+            passageFileParser.parseNextLine(br.readLine());
         }
         return new PassageMap(exitsByOriginTMP);
     }
@@ -60,27 +49,22 @@ public class PassageFile {
 
         // temporary information on parsing operation exceeding single line scope
         private Set<Integer> currentOriginAlreadyProcessed;
-        private Integer roomOfOriginLastLine;
-        private boolean firstLineOfBlockFlag;
-        private boolean eofReachedFlag;
+        private Integer roomOfOriginLastLine = null;
+        private boolean firstLineOfBlockFlag = true;
+        private boolean eofReachedFlag = false;
 
         // private int line;
 
         public PassageFileParser(String filename,
                                  Map<Integer, PassagesByOrigin> exitsByOriginTMP,
                                  Map<String, Passage> mapDirectionExitTMP,
-                                 Set<Integer> currentOriginAlreadyProcessed,
-                                 Integer roomOfOriginLastLine,
-                                 boolean firstLineOfBlockFlag,
-                                 boolean eofReachedFlag) {
+                                 Set<Integer> currentOriginAlreadyProcessed) {
 
             this.filename = filename;
             this.exitsByOriginTMP = exitsByOriginTMP;
             this.mapDirectionExitTMP = mapDirectionExitTMP;
             this.currentOriginAlreadyProcessed = currentOriginAlreadyProcessed;
             this.roomOfOriginLastLine = roomOfOriginLastLine;
-            this.firstLineOfBlockFlag = firstLineOfBlockFlag;
-            this.eofReachedFlag = eofReachedFlag;
         }
 
         // todo> evaluate wether this method and the equivalent code sections in class RoomFile provide benefit and refactor
@@ -124,7 +108,7 @@ public class PassageFile {
             return firstLineOfBlockFlag;
         }
 
-        public boolean isflagEOFwasReached() {
+        public boolean isEofReached() {
             return eofReachedFlag;
         }
 
