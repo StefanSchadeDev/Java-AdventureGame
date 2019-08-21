@@ -39,7 +39,6 @@ public class RoomFile {
         String roomName = null;
         String roomDescription = null;
         String[] inputCell = inputLine.split(CSV_SEPERATOR);
-        try {
 
             roomNumber = Integer.parseInt(inputCell[0]);
             roomName = inputCell[1].trim();
@@ -51,13 +50,6 @@ public class RoomFile {
                 roomsAlreadyProcessed.add(roomNumber);
                 logger.log(Level.FINE, "Room " + Integer.toString(roomNumber));
             }
-        } catch (NumberFormatException e) {
-            e.printStackTrace();
-            throw new IllegalArgumentException("Room ID not an int");
-        } catch (ArrayIndexOutOfBoundsException e) {
-            e.printStackTrace();
-            throw new IllegalArgumentException("Insufficient parameters for room");
-        }
         return new Room(roomNumber, roomName, roomDescription);
     }
 }

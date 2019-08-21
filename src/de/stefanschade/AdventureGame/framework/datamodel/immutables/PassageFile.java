@@ -52,35 +52,6 @@ public class PassageFile {
             this.exitsByOriginTMP = exitsByOriginTMP;
         }
 
-        // todo> evaluate wether this method and the equivalent code sections in class RoomFile provide benefit and refactor
-        private static Integer parseInt(String[] input, int order) {
-            Integer returnValue;
-            try {
-                returnValue = Integer.parseInt(input[order]);
-            } catch (NumberFormatException e) {
-                e.printStackTrace();
-                throw new IllegalArgumentException("Number format error in parse file");
-            } catch (ArrayIndexOutOfBoundsException e) {
-                e.printStackTrace();
-                throw new IllegalArgumentException("Insufficient parameters supplied in  file");
-            }
-            return returnValue;
-        }
-
-        private static String parseString(String[] input, int order) {
-            String returnValue;
-            try {
-                returnValue = input[order].trim();
-            } catch (NumberFormatException e) {
-                e.printStackTrace();
-                throw new IllegalArgumentException("Number format error in passage file");
-            } catch (ArrayIndexOutOfBoundsException e) {
-                e.printStackTrace();
-                throw new IllegalArgumentException("Insufficient parameters supplied in passage file");
-            }
-            return returnValue;
-        }
-
         public Map<String, Passage> getMapDirectionExitTMP() {
             return mapDirectionExitTMP;
         }
@@ -116,9 +87,9 @@ public class PassageFile {
                 }
 
                 String[] inputCell = inputLine.split(CSV_SEPERATOR);
-                currentRoomOfOrigin = parseInt(inputCell, 0);
-                currentDirectionString = parseString(inputCell, 1);
-                currentDestinationRoom = parseInt(inputCell, 2);
+                currentRoomOfOrigin =  Integer.parseInt(inputCell[0]);
+                currentDirectionString = inputCell[1].trim();
+                currentDestinationRoom = Integer.parseInt(inputCell[2]);
 
                 firstLineOfBlockFlag = (currentRoomOfOrigin != roomOfOriginLastLine);
                 previousBlockFinishedFlag = (firstLineOfBlockFlag && currentOriginAlreadyProcessed.size() > 0);
