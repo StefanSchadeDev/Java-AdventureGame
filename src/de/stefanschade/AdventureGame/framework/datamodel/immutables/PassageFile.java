@@ -21,11 +21,11 @@ public class PassageFile {
 
         Map<Integer, PassagesByOrigin> exitsByOriginTMP = new HashMap<>();
         Map<String, Passage> mapDirectionExitTMP = new HashMap<>();
-        Set<Integer> roomsOfOriginAlreadyProcessed = new HashSet<>();
+        Set<Integer> originsAlreadyProcessed = new HashSet<>();
 
         Integer roomOfOriginLastLine = null;
-        boolean flagOriginBlockWasFinished = false;
-        boolean flagFirstLineOfOriginBlock = true;
+        boolean flagBlockWasFinished = false;
+        boolean flagFirstLineOfBlock = true;
         boolean eofReachedFlag = false;
 
         int line = 0;
@@ -37,18 +37,16 @@ public class PassageFile {
             PassageFileParser passageFileParser = new PassageFileParser(filename,
                     exitsByOriginTMP,
                     mapDirectionExitTMP,
-                    roomsOfOriginAlreadyProcessed,
+                    originsAlreadyProcessed,
                     roomOfOriginLastLine,
-                    flagFirstLineOfOriginBlock,
+                    flagFirstLineOfBlock,
                     eofReachedFlag
             ).parseNextLine(br.readLine());
 
             mapDirectionExitTMP = passageFileParser.getMapDirectionExitTMP();
             roomOfOriginLastLine = passageFileParser.getRoomOfOriginLastLine();
-            flagFirstLineOfOriginBlock = passageFileParser.isFirstLineOfOriginBlockFlag();
+            flagFirstLineOfBlock = passageFileParser.isFirstLineOfBlockFlag();
             eofReachedFlag = passageFileParser.isflagEOFwasReached();
-
-
         }
         return new PassageMap(exitsByOriginTMP);
     }
@@ -61,9 +59,9 @@ public class PassageFile {
         private Map<String, Passage> mapDirectionExitTMP;
 
         // temporary information on parsing operation exceeding single line scope
-        private Set<Integer> roomsOfOriginAlreadyProcessed;
+        private Set<Integer> currentOriginAlreadyProcessed;
         private Integer roomOfOriginLastLine;
-        private boolean firstLineOfOriginBlockFlag;
+        private boolean firstLineOfBlockFlag;
         private boolean eofReachedFlag;
 
         // private int line;
@@ -71,17 +69,17 @@ public class PassageFile {
         public PassageFileParser(String filename,
                                  Map<Integer, PassagesByOrigin> exitsByOriginTMP,
                                  Map<String, Passage> mapDirectionExitTMP,
-                                 Set<Integer> roomsOfOriginAlreadyProcessed,
+                                 Set<Integer> currentOriginAlreadyProcessed,
                                  Integer roomOfOriginLastLine,
-                                 boolean firstLineOfOriginBlockFlag,
+                                 boolean firstLineOfBlockFlag,
                                  boolean eofReachedFlag) {
 
             this.filename = filename;
             this.exitsByOriginTMP = exitsByOriginTMP;
             this.mapDirectionExitTMP = mapDirectionExitTMP;
-            this.roomsOfOriginAlreadyProcessed = roomsOfOriginAlreadyProcessed;
+            this.currentOriginAlreadyProcessed = currentOriginAlreadyProcessed;
             this.roomOfOriginLastLine = roomOfOriginLastLine;
-            this.firstLineOfOriginBlockFlag = firstLineOfOriginBlockFlag;
+            this.firstLineOfBlockFlag = firstLineOfBlockFlag;
             this.eofReachedFlag = eofReachedFlag;
         }
 
@@ -122,8 +120,8 @@ public class PassageFile {
             return roomOfOriginLastLine;
         }
 
-        public boolean isFirstLineOfOriginBlockFlag() {
-            return firstLineOfOriginBlockFlag;
+        public boolean isFirstLineOfBlockFlag() {
+            return firstLineOfBlockFlag;
         }
 
         public boolean isflagEOFwasReached() {
@@ -132,7 +130,7 @@ public class PassageFile {
 
         public PassageFileParser parseNextLine(String inputLine) throws IOException {
 
-            boolean previousOriginBlockFinishedFlag;
+            boolean previousBlockFinishedFlag;
             Integer currentRoomOfOrigin = null;
             String currentDirectionString = null;
             Integer currentDestinationRoom = null;
@@ -142,7 +140,7 @@ public class PassageFile {
             if (inputLine == null) {
                 logger.log(Level.INFO, "Parsing file " + filename + " -> EOF");
                 eofReachedFlag = true;
-                previousOriginBlockFinishedFlag = true;
+                previousBlockFinishedFlag = true;
             } else {
                 if (inputLine.trim().isEmpty() || inputLine.startsWith("#")) {
                     return this; // line is a comment and therefore ignored
@@ -153,21 +151,21 @@ public class PassageFile {
                 currentDirectionString = parseString(inputCell, 1);
                 currentDestinationRoom = parseInt(inputCell, 2);
 
-                firstLineOfOriginBlockFlag = (currentRoomOfOrigin != roomOfOriginLastLine);
-                previousOriginBlockFinishedFlag = (firstLineOfOriginBlockFlag && roomsOfOriginAlreadyProcessed.size() > 0);
+                firstLineOfBlockFlag = (currentRoomOfOrigin != roomOfOriginLastLine);
+                previousBlockFinishedFlag = (firstLineOfBlockFlag && currentOriginAlreadyProcessed.size() > 0);
 
-                if (roomsOfOriginAlreadyProcessed.contains(currentRoomOfOrigin)) {
-                    if (firstLineOfOriginBlockFlag) {
+                if (currentOriginAlreadyProcessed.contains(currentRoomOfOrigin)) {
+                    if (firstLineOfBlockFlag) {
                         logger.log(Level.WARNING, "Block for Origin #" + currentRoomOfOrigin
                                 + " already processed, ignoring line ");
                         return this;
                     }
                 } else {
-                    roomsOfOriginAlreadyProcessed.add(currentRoomOfOrigin);
+                    currentOriginAlreadyProcessed.add(currentRoomOfOrigin);
                 }
             }
-            // after origin block, construct an immutable instance of PassagesByOrigin and append it to exitsByOriginTMP
-            if (previousOriginBlockFinishedFlag) {
+            // after  block, construct an immutable instance of PassagesByOrigin and append it to exitsByOriginTMP
+            if (previousBlockFinishedFlag) {
                 exitsByOriginTMP.put(roomOfOriginLastLine,
                         new PassagesByOrigin(roomOfOriginLastLine, new HashMap<String, Passage>(mapDirectionExitTMP)));
             }
@@ -176,13 +174,13 @@ public class PassageFile {
                 return this;
             }
             // if processing new origin block, flush the temporary object
-            if (firstLineOfOriginBlockFlag) {
+            if (firstLineOfBlockFlag) {
                 mapDirectionExitTMP = new HashMap<String, Passage>();
             }
             mapDirectionExitTMP.put(currentDirectionString, new Passage(currentDestinationRoom));
             //reset flags before parsing the next line
             roomOfOriginLastLine = currentRoomOfOrigin;
-            firstLineOfOriginBlockFlag = false;
+            firstLineOfBlockFlag = false;
             return this;
         }
 
