@@ -17,7 +17,7 @@ public class RoomFile {
     private static final Logger logger = Logger.getLogger(RoomMap.class.getName());
     private static final String CSV_SEPERATOR = ";";
 
-    static Map<Integer, Room> readMapFromFile(String filename) throws IOException {
+    static RoomMap readMapFromFile(String filename) throws IOException {
         logger.log(Level.INFO, "parsing file: " + filename);
         Map<Integer, Room> temporaryRoomMap = new HashMap<>();
         BufferedReader br = Files.newBufferedReader(Paths.get(filename));
@@ -27,7 +27,8 @@ public class RoomFile {
             Room temporaryRoom = parseOneLine(roomsAlreadyProcessed, inputLine);
             if (temporaryRoom != null) temporaryRoomMap.put(temporaryRoom.getID(), temporaryRoom);
         }
-        return temporaryRoomMap;
+
+        return new RoomMap(temporaryRoomMap);
     }
 
     private static Room parseOneLine(Set<Integer> roomsAlreadyProcessed, String inputLine) {

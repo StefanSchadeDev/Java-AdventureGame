@@ -14,21 +14,12 @@ import java.util.logging.Logger;
 @Immutable
 public class PassageMap {
 
-    private String name;
-    private Map<Integer, PassagesByOrigin> exitsByOrigin;
-    private final Logger logger = Logger.getLogger(PassageMap.class.getName());
+    private static final Logger logger = Logger.getLogger(PassageMap.class.getName());
     private static final String CSV_SEPERATOR = ";";
+    private Map<Integer, PassagesByOrigin> exitsByOrigin;
 
 
     public PassageMap(String filename) {
-        if (filename == null) {
-            logger.log(Level.SEVERE, "PassageMap constructor was called with filename = null");
-            System.exit(-2);
-        } else if (filename.isEmpty()) {
-            logger.log(Level.SEVERE, "PassageMap constructor was called with empty filename");
-            System.exit(-2);
-        }
-        this.name = filename;
 
         // Used to collect information prior to constructor call
         Map<Integer, PassagesByOrigin> exitsByOriginTMP = new HashMap<>();
@@ -114,6 +105,11 @@ public class PassageMap {
             logger.log(Level.SEVERE, "IOException while loading rooms ");
             System.exit(-2);
         }
+
+    }
+
+    public static void readPassagesFile(String filename) {
+
     }
 
     private PassagesByOrigin getPassage(int i) {
