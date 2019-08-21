@@ -14,26 +14,28 @@ public final class World {
     private static final String FILE_ROOMS = "./resources/Rooms.csv";
     private static final String FILE_PASSAGES = "./resources/Passages.csv";
 
-    private final Rooms roomsInWorld;
-    private final Passages passagesInWorld;
+    private final RoomMap roomsInWorld;
+    private final PassageMap passagesInWorld;
 
     public World() {
-        roomsInWorld = new Rooms(FILE_ROOMS);
-        passagesInWorld = new Passages(FILE_PASSAGES);
+        roomsInWorld = new RoomMap(FILE_ROOMS);
+        passagesInWorld = new PassageMap(FILE_PASSAGES);
+
+
     }
 
     private static void captureRoom
-            (Map<Integer, Rooms.RoomEntry> rooms, Map<Integer, Passages.ExitsForOneOrigin> passages, Integer
+            (Map<Integer, Room> rooms, Map<Integer, PassageMap.PassagesByOrigin> passages, Integer
                     id, Integer north, Integer east, Integer west, Integer south, String name, String description) {
-        Map<String, Passages.Exit> exits = new HashMap<>();
-        if (north != null) exits.put("north", new Passages.Exit(north));
-        if (east != null) exits.put("east", new Passages.Exit(east));
-        if (west != null) exits.put("west", new Passages.Exit(west));
-        if (south != null) exits.put("south", new Passages.Exit(south));
-        Rooms.RoomEntry room;
-        room = new Rooms.RoomEntry(id, name, description);
+        Map<String, Passage> exits = new HashMap<>();
+        if (north != null) exits.put("north", new Passage(north));
+        if (east != null) exits.put("east", new Passage(east));
+        if (west != null) exits.put("west", new Passage(west));
+        if (south != null) exits.put("south", new Passage(south));
+        Room room;
+        room = new Room(id, name, description);
         rooms.put(id, room);
-        passages.put(id, new Passages.ExitsForOneOrigin(id, exits));
+        passages.put(id, new PassageMap.PassagesByOrigin(id, exits));
     }
 
     public int getDestination(int currentRoom, String direction) {

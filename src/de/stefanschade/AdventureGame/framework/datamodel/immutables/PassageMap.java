@@ -12,25 +12,27 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 @Immutable
-public class Passages {
+public class PassageMap {
+
     private String name;
-    private Map<Integer, ExitsForOneOrigin> exitsByOrigin;
-    private final Logger logger = Logger.getLogger(Passages.class.getName());
+    private Map<Integer, PassagesByOrigin> exitsByOrigin;
+    private final Logger logger = Logger.getLogger(PassageMap.class.getName());
     private static final String CSV_SEPERATOR = ";";
 
 
-    public Passages(String filename) {
+    public PassageMap(String filename) {
         if (filename == null) {
-            logger.log(Level.SEVERE, "Passages constructor was called with filename = null");
+            logger.log(Level.SEVERE, "PassageMap constructor was called with filename = null");
             System.exit(-2);
         } else if (filename.isEmpty()) {
-            logger.log(Level.SEVERE, "Passages constructor was called with empty filename");
+            logger.log(Level.SEVERE, "PassageMap constructor was called with empty filename");
             System.exit(-2);
         }
         this.name = filename;
+
         // Used to collect information prior to constructor call
-        Map<Integer, ExitsForOneOrigin> exitsByOriginTMP = new HashMap<>();
-        Map<String, Exit> mapDirectionExitTMP = new HashMap<>();
+        Map<Integer, PassagesByOrigin> exitsByOriginTMP = new HashMap<>();
+        Map<String, Passage> mapDirectionExitTMP = new HashMap<>();
         // parsing info
         Set<Integer> roomsOfOriginAlreadyProcessed = new HashSet<>();
         Integer lastRoomOfOrigin = null;
@@ -89,20 +91,20 @@ public class Passages {
                         roomsOfOriginAlreadyProcessed.add(currentRoomOfOrigin);
                     }
                 }
-                // after origin block, construct an immutable instance of ExitsForOneOrigin and append it to exitsByOriginTMP
+                // after origin block, construct an immutable instance of PassagesByOrigin and append it to exitsByOriginTMP
                 if (flagOriginBlockWasFinished) {
-                    exitsByOriginTMP.put(lastRoomOfOrigin, new ExitsForOneOrigin(lastRoomOfOrigin, new HashMap<String, Exit>(mapDirectionExitTMP)));
+                    exitsByOriginTMP.put(lastRoomOfOrigin, new PassagesByOrigin(lastRoomOfOrigin, new HashMap<String, Passage>(mapDirectionExitTMP)));
                 }
                 // at the end of the file, construct an immutable instance of field exitsByOrigin
                 if (flagParseFinished) {
-                    this.exitsByOrigin = new HashMap<Integer, ExitsForOneOrigin>(exitsByOriginTMP);
+                    this.exitsByOrigin = new HashMap<Integer, PassagesByOrigin>(exitsByOriginTMP);
                     continue;
                 }
                 // if processing new origin block, flush the temporary object
                 if (flagFirstLineOfOriginBlock) {
-                    mapDirectionExitTMP = new HashMap<String, Exit>();
+                    mapDirectionExitTMP = new HashMap<String, Passage>();
                 }
-                mapDirectionExitTMP.put(currentDirectionString, new Exit(currentDestinationRoom));
+                mapDirectionExitTMP.put(currentDirectionString, new Passage(currentDestinationRoom));
                 //reset flags before parsing the next line
                 lastRoomOfOrigin = currentRoomOfOrigin;
                 flagFirstLineOfOriginBlock = false;
@@ -114,9 +116,9 @@ public class Passages {
         }
     }
 
-    private ExitsForOneOrigin getPassage(int i) {
+    private PassagesByOrigin getPassage(int i) {
         if (!exitsByOrigin.containsKey(i)) {
-            logger.log(Level.SEVERE, "ExitsForOneOrigin " + i + " not found in map " + exitsByOrigin);
+            logger.log(Level.SEVERE, "PassagesByOrigin " + i + " not found in map " + exitsByOrigin);
             return null;
         } else {
             return exitsByOrigin.get(i);
@@ -148,21 +150,6 @@ public class Passages {
         }
     }
 
-    // static class, as we need the constructor before we have an instance of the immutable enclosing class.
-    // Association is modelled via the map in the enclosing class
-    @Immutable
-    static final class Exit {
-        private final int destination;
-
-        int getDestination() {
-            return destination;
-        }
-
-        Exit(int destination) {
-            this.destination = destination;
-        }
-    }
-
     boolean validateRoomOfOrigin(int i) {
         boolean returnvalue = true;
         if (!this.exitsByOrigin.containsKey(i)) {
@@ -177,12 +164,12 @@ public class Passages {
     }
 
     @Immutable
-    static final class ExitsForOneOrigin {
-        private final Map<String, Exit> mapDirectionToDestination;
+    static final class PassagesByOrigin {
+        private final Map<String, Passage> mapDirectionToDestination;
         private final int originRoomID;
 
 
-        ExitsForOneOrigin(int roomOfOrigin, Map<String, Exit> exits) {
+        PassagesByOrigin(int roomOfOrigin, Map<String, Passage> exits) {
             if (exits == null) {
                 this.mapDirectionToDestination = new HashMap<>();
             } else {
@@ -222,7 +209,7 @@ public class Passages {
 
         int getDestination(String direction) {
             if (this.mapDirectionToDestination.containsKey(direction)) {
-                Exit psg = this.mapDirectionToDestination.get(direction);
+                Passage psg = this.mapDirectionToDestination.get(direction);
                 return psg.getDestination();
             } else {
                 return -1;
