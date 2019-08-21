@@ -25,7 +25,7 @@ import java.util.logging.Logger;
 public class Rooms {
     private static final String CSV_SEPERATOR = ";";
     private final String name;
-    private final Map<Integer, RoomEntry> roomMapEntry;
+    private final Map<Integer, Room> roomMapEntry;
     private final Logger logger = Logger.getLogger(Rooms.class.getName());
 
     Rooms(String filename) {
@@ -46,7 +46,7 @@ public class Rooms {
         logmsg = new StringBuffer();
         this.name = "Rooms Object read from file: " + filename;
 
-        Map<Integer, RoomEntry> roomMapEntrytmp = new HashMap<>();
+        Map<Integer, Room> roomMapEntrytmp = new HashMap<>();
         Set<Integer> roomsAlreadyProcessed = new HashSet<>();
         String inputLine;
         int line = 0;
@@ -100,7 +100,7 @@ public class Rooms {
                 logmsg.append(roomDescription);
                 logger.log(Level.INFO, logmsg.toString());
                 logmsg = new StringBuffer();
-                roomMapEntrytmp.put(roomNumber, new RoomEntry(roomNumber, roomName, roomDescription));
+                roomMapEntrytmp.put(roomNumber, new Room(roomNumber, roomName, roomDescription));
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -137,35 +137,4 @@ public class Rooms {
         return null;
     }
 
-    @Immutable
-    static final class RoomEntry {
-        private final int roomID;
-        private final String name;
-        private final String description;
-        private final Logger logger = Logger.getLogger("RoomEntry");
-
-        RoomEntry(int roomID, String name, String description) {
-            if (roomID < 0) {
-                logger.log(Level.SEVERE, "Instantiation of Object failed, RoomID ("
-                        + roomID + ") must be positive");
-                System.exit(-2);
-            }
-            this.roomID = roomID;
-            this.name = name;
-            this.description = description;
-        }
-
-        String getName() {
-            return name;
-        }
-
-        String getDescription() {
-            return description;
-        }
-
-        @Override
-        public String toString() {
-            return "RoomEntry #" + this.roomID + " [" + this.name + "]";
-        }
-    }
 }
