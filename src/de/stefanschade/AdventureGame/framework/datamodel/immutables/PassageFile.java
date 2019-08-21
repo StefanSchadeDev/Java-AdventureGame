@@ -20,19 +20,11 @@ public class PassageFile {
     public static PassageMap readMapFromFile(String filename) throws IOException {
 
         Map<Integer, PassagesByOrigin> exitsByOriginTMP = new HashMap<>();
-        Map<String, Passage> mapDirectionExitTMP = new HashMap<>();
-        Set<Integer> originsAlreadyProcessed = new HashSet<>();
-
-        int line = 0;
 
         Path path = Paths.get(filename);
         BufferedReader br = Files.newBufferedReader(path);
 
-        PassageFileParser passageFileParser = new PassageFileParser(filename,
-                exitsByOriginTMP,
-                mapDirectionExitTMP,
-                originsAlreadyProcessed
-                );
+        PassageFileParser passageFileParser = new PassageFileParser(exitsByOriginTMP);
 
         while (!passageFileParser.isEofReached()) {
             passageFileParser.parseNextLine(br.readLine());
@@ -41,30 +33,23 @@ public class PassageFile {
     }
 
     private static class PassageFileParser {
-        private String filename;
 
-        // temporary objects to build up the parsed information before using it to instantiate the immutable objects
+        // the return object
         private Map<Integer, PassagesByOrigin> exitsByOriginTMP;
-        private Map<String, Passage> mapDirectionExitTMP;
+
+        // temporary structure
+        private Map<String, Passage> mapDirectionExitTMP= new HashMap<>();
 
         // temporary information on parsing operation exceeding single line scope
-        private Set<Integer> currentOriginAlreadyProcessed;
+        private Set<Integer> currentOriginAlreadyProcessed = new HashSet<>();
         private Integer roomOfOriginLastLine = null;
         private boolean firstLineOfBlockFlag = true;
         private boolean eofReachedFlag = false;
 
         // private int line;
 
-        public PassageFileParser(String filename,
-                                 Map<Integer, PassagesByOrigin> exitsByOriginTMP,
-                                 Map<String, Passage> mapDirectionExitTMP,
-                                 Set<Integer> currentOriginAlreadyProcessed) {
-
-            this.filename = filename;
+        public PassageFileParser(Map<Integer, PassagesByOrigin> exitsByOriginTMP) {
             this.exitsByOriginTMP = exitsByOriginTMP;
-            this.mapDirectionExitTMP = mapDirectionExitTMP;
-            this.currentOriginAlreadyProcessed = currentOriginAlreadyProcessed;
-            this.roomOfOriginLastLine = roomOfOriginLastLine;
         }
 
         // todo> evaluate wether this method and the equivalent code sections in class RoomFile provide benefit and refactor
@@ -122,7 +107,7 @@ public class PassageFile {
 
             // eof reached
             if (inputLine == null) {
-                logger.log(Level.INFO, "Parsing file " + filename + " -> EOF");
+                logger.log(Level.INFO, "eof reached");
                 eofReachedFlag = true;
                 previousBlockFinishedFlag = true;
             } else {
