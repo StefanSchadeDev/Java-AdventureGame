@@ -10,7 +10,8 @@ final class Room {
     private final int roomID;
     private final String name;
     private final String description;
-    private final Logger logger = Logger.getLogger("RoomEntry");
+    private static final Logger logger = Logger.getLogger(Room.class.getName());
+
 
     Room(int roomID, String name, String description) {
         if (roomID < 0) {

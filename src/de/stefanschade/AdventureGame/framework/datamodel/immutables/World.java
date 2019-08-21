@@ -19,16 +19,12 @@ public final class World {
     private final PassageMap passagesInWorld;
 
     public World() throws IOException {
-
         roomsInWorld = RoomFile.readMapFromFile(FILE_ROOMS);
-
-        passagesInWorld = new PassageMap(FILE_PASSAGES);
-
-
+        passagesInWorld = PassageFile.readMapFromFile(FILE_PASSAGES);
     }
 
     private static void captureRoom
-            (Map<Integer, Room> rooms, Map<Integer, PassageMap.PassagesByOrigin> passages, Integer
+            (Map<Integer, Room> rooms, Map<Integer, PassagesByOrigin> passages, Integer
                     id, Integer north, Integer east, Integer west, Integer south, String name, String description) {
         Map<String, Passage> exits = new HashMap<>();
         if (north != null) exits.put("north", new Passage(north));
@@ -38,7 +34,7 @@ public final class World {
         Room room;
         room = new Room(id, name, description);
         rooms.put(id, room);
-        passages.put(id, new PassageMap.PassagesByOrigin(id, exits));
+        passages.put(id, new PassagesByOrigin(id, exits));
     }
 
     public int getDestination(int currentRoom, String direction) {

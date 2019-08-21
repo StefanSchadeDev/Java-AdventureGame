@@ -27,9 +27,9 @@ public class RoomFile {
             Room temporaryRoom = parseOneLine(roomsAlreadyProcessed, inputLine);
             if (temporaryRoom != null) temporaryRoomMap.put(temporaryRoom.getID(), temporaryRoom);
         }
-
         return new RoomMap(temporaryRoomMap);
     }
+
 
     private static Room parseOneLine(Set<Integer> roomsAlreadyProcessed, String inputLine) {
         if (inputLine.trim().isEmpty() || inputLine.startsWith("#")) {
