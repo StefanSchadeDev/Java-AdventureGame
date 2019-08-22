@@ -3,8 +3,6 @@ package de.stefanschade.AdventureGame.framework.datamodel.immutables;
 import de.stefanschade.AdventureGame.framework.datamodel.StateOfPlayer;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.logging.Logger;
 
 public final class World {
@@ -21,31 +19,6 @@ public final class World {
     public World() throws IOException {
         roomsInWorld = RoomFile.readMapFromFile(FILE_ROOMS);
         passagesInWorld = PassageFile.readMapFromFile(FILE_PASSAGES);
-    }
-
-    private static void captureRoom
-            (Map<Integer, Room> rooms,
-             Map<Integer, PassagesByOrigin> passages,
-             Integer id,
-             Integer north,
-             Integer east,
-             Integer west,
-             Integer south,
-             String name,
-             String description) {
-        Map<String, Passage> exits = new HashMap<>();
-        if (north != null) exits.put("north", new Passage(north));
-        if (east != null) exits.put("east", new Passage(east));
-        if (west != null) exits.put("west", new Passage(west));
-        if (south != null) exits.put("south", new Passage(south));
-        Room room;
-        room = new Room(id, name, description);
-        rooms.put(id, room);
-        passages.put(id, new PassagesByOrigin(id, exits));
-    }
-
-    public int getDestination(int currentRoom, String direction) {
-        return this.passagesInWorld.getDestination(currentRoom, direction);
     }
 
     public boolean isValidPassage(StateOfPlayer player, String direction) {

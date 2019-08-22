@@ -23,7 +23,6 @@ public class PassageFile {
 
         Path path = Paths.get(filename);
         BufferedReader br = Files.newBufferedReader(path);
-
         PassageFileParser passageFileParser = new PassageFileParser(exitsByOriginTMP);
 
         while (!passageFileParser.isEofReached()) {
