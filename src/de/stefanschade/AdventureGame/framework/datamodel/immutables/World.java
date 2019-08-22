@@ -18,7 +18,8 @@ public final class World {
 
     public World() throws IOException {
         roomsInWorld = RoomFile.readMapFromFile(FILE_ROOMS);
-        passagesInWorld = PassageFile.readMapFromFile(FILE_PASSAGES);
+
+        passagesInWorld = new PassageFile(FILE_PASSAGES).readMapFromFile();
     }
 
     public boolean isValidPassage(StateOfPlayer player, String direction) {

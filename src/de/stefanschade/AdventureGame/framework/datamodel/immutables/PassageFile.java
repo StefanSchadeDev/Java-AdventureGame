@@ -3,7 +3,6 @@ package de.stefanschade.AdventureGame.framework.datamodel.immutables;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -14,114 +13,102 @@ import java.util.logging.Logger;
 
 public class PassageFile {
 
-    private static final Logger logger = Logger.getLogger(PassageFile.class.getName());
+    // static constants
+    private static final Logger LOGGER = Logger.getLogger(PassageFile.class.getName());
     private static final String CSV_SEPERATOR = ";";
 
-    public static PassageMap readMapFromFile(String filename) throws IOException {
+    // the return object
+    private Map<Integer, PassagesByOrigin> exitsByOriginTMP = new HashMap<>();
+    private String filename;
 
-        Map<Integer, PassagesByOrigin> exitsByOriginTMP = new HashMap<>();
+    // temporary information on parsing operation exceeding single line scope
+    private Set<Integer> currentOriginAlreadyProcessed = new HashSet<>();
+    private Map<String, Passage> mapDirectionExitTMP = new HashMap<>();
+    private Integer roomOfOriginLastLine = null;
+    private boolean firstLineOfBlockFlag = true;
+    private boolean eofReachedFlag = false;
+    private int currentLine = 0;
 
-        Path path = Paths.get(filename);
-        BufferedReader br = Files.newBufferedReader(path);
-        PassageFileParser passageFileParser = new PassageFileParser(exitsByOriginTMP);
-
-        while (!passageFileParser.isEofReached()) {
-            passageFileParser.parseNextLine(br.readLine());
-        }
-        return new PassageMap(exitsByOriginTMP);
+    public PassageFile(String filename) {
+        this.filename = filename;
     }
 
-    private static class PassageFileParser {
+    public PassageMap readMapFromFile() throws IOException {
 
-        // the return object
-        private Map<Integer, PassagesByOrigin> exitsByOriginTMP;
+        BufferedReader br = Files.newBufferedReader(Paths.get(filename));
 
-        // temporary structure
-        private Map<String, Passage> mapDirectionExitTMP= new HashMap<>();
-
-        // temporary information on parsing operation exceeding single line scope
-        private Set<Integer> currentOriginAlreadyProcessed = new HashSet<>();
-        private Integer roomOfOriginLastLine = null;
-        private boolean firstLineOfBlockFlag = true;
-        private boolean eofReachedFlag = false;
-
-        // private int line;
-
-        public PassageFileParser(Map<Integer, PassagesByOrigin> exitsByOriginTMP) {
-            this.exitsByOriginTMP = exitsByOriginTMP;
+        while (!eofReachedFlag) {
+            parseNextLine(br.readLine());
         }
 
-        public Map<String, Passage> getMapDirectionExitTMP() {
-            return mapDirectionExitTMP;
-        }
+        PassageMap returnValue = new PassageMap(exitsByOriginTMP);
 
-        public Integer getRoomOfOriginLastLine() {
-            return roomOfOriginLastLine;
-        }
+        LOGGER.log(Level.FINEST, "XXX checking room 1: " + returnValue.validateRoomOfOrigin(1));
 
-        public boolean isFirstLineOfBlockFlag() {
-            return firstLineOfBlockFlag;
-        }
+        return returnValue;
+    }
 
-        public boolean isEofReached() {
-            return eofReachedFlag;
-        }
+    public void parseNextLine(String inputLine) throws IOException {
 
-        public PassageFileParser parseNextLine(String inputLine) throws IOException {
+        boolean previousBlockFinishedFlag;
+        Integer currentRoomOfOrigin = null;
+        String currentDirectionString = null;
+        Integer currentDestinationRoom = null;
 
-            boolean previousBlockFinishedFlag;
-            Integer currentRoomOfOrigin = null;
-            String currentDirectionString = null;
-            Integer currentDestinationRoom = null;
-//            line++;
+        LOGGER.log(Level.FINEST, "parsing line " + currentLine++);
 
-            // eof reached
-            if (inputLine == null) {
-                logger.log(Level.INFO, "eof reached");
-                eofReachedFlag = true;
-                previousBlockFinishedFlag = true;
+        // eof reached
+        if (inputLine == null) {
+            LOGGER.log(Level.FINEST, "eof reached");
+            eofReachedFlag = true;
+            previousBlockFinishedFlag = true;
+        } else {
+            if (inputLine.trim().isEmpty() || inputLine.startsWith("#")) {
+                LOGGER.log(Level.FINEST, "ignoring comment");
+                return;
+            }
+
+            String[] inputCell = inputLine.split(CSV_SEPERATOR);
+            currentRoomOfOrigin = Integer.parseInt(inputCell[0]);
+            currentDirectionString = inputCell[1].trim();
+            currentDestinationRoom = Integer.parseInt(inputCell[2]);
+
+            LOGGER.log(Level.FINEST,
+                    "parsed: " + currentRoomOfOrigin +
+                            " / " + currentDirectionString +
+                            " / " + currentDestinationRoom);
+
+            firstLineOfBlockFlag = (currentRoomOfOrigin != roomOfOriginLastLine);
+            previousBlockFinishedFlag = (firstLineOfBlockFlag && currentOriginAlreadyProcessed.size() > 0);
+
+            if (currentOriginAlreadyProcessed.contains(currentRoomOfOrigin)) {
+                if (firstLineOfBlockFlag) {
+                    LOGGER.log(Level.WARNING, "Block for Origin #" + currentRoomOfOrigin
+                            + " already processed, ignoring line ");
+                    return;
+                }
             } else {
-                if (inputLine.trim().isEmpty() || inputLine.startsWith("#")) {
-                    return this; // line is a comment and therefore ignored
-                }
-
-                String[] inputCell = inputLine.split(CSV_SEPERATOR);
-                currentRoomOfOrigin =  Integer.parseInt(inputCell[0]);
-                currentDirectionString = inputCell[1].trim();
-                currentDestinationRoom = Integer.parseInt(inputCell[2]);
-
-                firstLineOfBlockFlag = (currentRoomOfOrigin != roomOfOriginLastLine);
-                previousBlockFinishedFlag = (firstLineOfBlockFlag && currentOriginAlreadyProcessed.size() > 0);
-
-                if (currentOriginAlreadyProcessed.contains(currentRoomOfOrigin)) {
-                    if (firstLineOfBlockFlag) {
-                        logger.log(Level.WARNING, "Block for Origin #" + currentRoomOfOrigin
-                                + " already processed, ignoring line ");
-                        return this;
-                    }
-                } else {
-                    currentOriginAlreadyProcessed.add(currentRoomOfOrigin);
-                }
+                currentOriginAlreadyProcessed.add(currentRoomOfOrigin);
             }
-            // after  block, construct an immutable instance of PassagesByOrigin and append it to exitsByOriginTMP
-            if (previousBlockFinishedFlag) {
-                exitsByOriginTMP.put(roomOfOriginLastLine,
-                        new PassagesByOrigin(roomOfOriginLastLine, new HashMap<String, Passage>(mapDirectionExitTMP)));
-            }
-            // at the end of the file, construct an immutable instance of field exitsByOrigin
-            if (eofReachedFlag) {
-                return this;
-            }
-            // if processing new origin block, flush the temporary object
-            if (firstLineOfBlockFlag) {
-                mapDirectionExitTMP = new HashMap<String, Passage>();
-            }
-            mapDirectionExitTMP.put(currentDirectionString, new Passage(currentDestinationRoom));
-            //reset flags before parsing the next line
-            roomOfOriginLastLine = currentRoomOfOrigin;
-            firstLineOfBlockFlag = false;
-            return this;
         }
+        // after  block, construct an immutable instance of PassagesByOrigin and append it to exitsByOriginTMP
+        if (previousBlockFinishedFlag) {
+            exitsByOriginTMP.put(roomOfOriginLastLine,
+                    new PassagesByOrigin(roomOfOriginLastLine, new HashMap<String, Passage>(mapDirectionExitTMP)));
+        }
+        // at the end of the file, construct an immutable instance of field exitsByOrigin
+        if (eofReachedFlag) {
+            return;
+        }
+        // if processing new origin block, flush the temporary object
+        if (firstLineOfBlockFlag) {
+            mapDirectionExitTMP = new HashMap<String, Passage>();
+        }
+        mapDirectionExitTMP.put(currentDirectionString, new Passage(currentDestinationRoom));
+        //reset flags before parsing the next line
+        roomOfOriginLastLine = currentRoomOfOrigin;
+        firstLineOfBlockFlag = false;
 
+        return;
     }
 }

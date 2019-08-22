@@ -11,7 +11,6 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-
 public class RoomFile {
 
     private static final Logger logger = Logger.getLogger(RoomMap.class.getName());
