@@ -8,12 +8,12 @@ import java.util.Map;
 import java.util.Set;
 
 @Immutable
-final class Directions {
+final class PassagesOneRoom {
     private final Map<String, Passage> mapDirectionToDestination;
     private final int originRoomID;
 
 
-    Directions(int roomOfOrigin, Map<String, Passage> exits) {
+    PassagesOneRoom(int roomOfOrigin, Map<String, Passage> exits) {
         if (exits == null) {
             this.mapDirectionToDestination = new HashMap<>();
         } else {

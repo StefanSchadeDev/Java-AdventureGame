@@ -17,7 +17,7 @@ public final class World {
     private final PassageMap passagesInWorld;
 
     public World() throws IOException {
-        roomsInWorld = RoomFile.readMapFromFile(FILE_ROOMS);
+        roomsInWorld = new RoomFile(FILE_ROOMS).readMapFromFile();
 
         passagesInWorld = new PassageFile(FILE_PASSAGES).readMapFromFile();
     }

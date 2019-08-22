@@ -13,42 +13,108 @@ import java.util.logging.Logger;
 
 public class RoomFile {
 
-    private static final Logger logger = Logger.getLogger(RoomMap.class.getName());
+    // static constants
+    private static final Logger LOGGER = Logger.getLogger(RoomFile.class.getName());
     private static final String CSV_SEPERATOR = ";";
+    private final String filename;
 
-    static RoomMap readMapFromFile(String filename) throws IOException {
-        logger.log(Level.INFO, "parsing file: " + filename);
-        Map<Integer, Room> temporaryRoomMap = new HashMap<>();
-        BufferedReader br = Files.newBufferedReader(Paths.get(filename));
-        Set<Integer> roomsAlreadyProcessed = new HashSet<>();
-        String inputLine;
-        while ((inputLine = br.readLine()) != null) {
-            Room temporaryRoom = parseOneLine(roomsAlreadyProcessed, inputLine);
-            if (temporaryRoom != null) temporaryRoomMap.put(temporaryRoom.getID(), temporaryRoom);
-        }
-        return new RoomMap(temporaryRoomMap);
+    // object has to be instantiated for each parse
+    private boolean objectAlreadyUsed = false;
+
+    // fields to store the parse info of each line
+    private Integer roomNumber = null;
+    private String roomName = null;
+    private String roomDescription = null;
+    private int currentLine = 0;
+
+    // containers collect data to populate immutable in one go
+    private Map<Integer, Room> tmpRoomMap = new HashMap<>();
+    private Room tmpRoom;
+
+    // temporary information on parsing operation exceeding single line scope
+    private Set<Integer> roomsAlreadyProcessed = new HashSet<>();
+    private boolean eofReachedFlag = false;
+
+    RoomFile(String filename) {
+        this.filename = filename;
     }
 
+    RoomMap readMapFromFile() throws IOException {
 
-    private static Room parseOneLine(Set<Integer> roomsAlreadyProcessed, String inputLine) {
-        if (inputLine.trim().isEmpty() || inputLine.startsWith("#")) {
-            return null;
-        }
-        Integer roomNumber = null;
-        String roomName = null;
-        String roomDescription = null;
-        String[] inputCell = inputLine.split(CSV_SEPERATOR);
+        LOGGER.log(Level.INFO, "parsing file: " + filename);
 
-            roomNumber = Integer.parseInt(inputCell[0]);
-            roomName = inputCell[1].trim();
-            roomDescription = inputCell[2].trim();
+        ensureThisObjectOnlyUsedOnce();
+        BufferedReader br = null;
+        try {
+            br = Files.newBufferedReader(Paths.get(filename));
+            while (!eofReachedFlag) {
+                String currentLine = br.readLine();
+                if (!isEOF(currentLine)) {
+                    if (isComment(currentLine)) continue;
 
-            if (roomsAlreadyProcessed.contains(roomNumber)) {
-                throw new IllegalArgumentException("Room ID " + inputCell[0] + "already processed");
-            } else {
-                roomsAlreadyProcessed.add(roomNumber);
-                logger.log(Level.FINE, "Room " + Integer.toString(roomNumber));
+                    parse(currentLine);
+                    setTempFieldsAccordingToCurrentParse();
+                }
+                populateTemporaryObjectsAfterParse();  //  also necessary at EOF to process last line
+                prepareTempFieldsForNextParse(); // does not harm at EOF
             }
-        return new Room(roomNumber, roomName, roomDescription);
+        } finally {
+            br.close();
+        }
+        return new RoomMap(tmpRoomMap);
+    }
+
+    private void parse(String currentLine) {
+        LOGGER.log(Level.FINEST, "parsing line " + this.currentLine++);
+        String[] inputCell = currentLine.split(CSV_SEPERATOR);
+        roomNumber = Integer.parseInt(inputCell[0]);
+        roomName = inputCell[1].trim();
+        roomDescription = inputCell[2].trim();
+    }
+
+    private void prepareTempFieldsForNextParse() {
+        tmpRoom = new Room(roomNumber, roomName, roomDescription);
+    }
+
+    private void setTempFieldsAccordingToCurrentParse() {
+
+        if (roomsAlreadyProcessed.contains(roomNumber)) {
+
+            String errormsg = "file " + filename + " room " + roomNumber + " in line " + currentLine
+                    + " has already been processed. Double entries are not allowed";
+
+            LOGGER.log(Level.SEVERE, errormsg);
+            throw new IllegalArgumentException(errormsg);
+
+        } else {
+            roomsAlreadyProcessed.add(roomNumber);
+        }
+    }
+
+    private boolean isEOF(String currentLine) {
+        if (currentLine == null) {
+            LOGGER.log(Level.FINE, filename + " EOF reached");
+            eofReachedFlag = true;
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    private void populateTemporaryObjectsAfterParse() {
+        tmpRoom = new Room(roomNumber,roomName,roomDescription);
+        tmpRoomMap.put(tmpRoom.getID(), tmpRoom);
+    }
+
+    private void ensureThisObjectOnlyUsedOnce() {
+        if (objectAlreadyUsed) {
+            throw new IllegalArgumentException("PassageFile Object has to be instantiated for each parse operation");
+        } else {
+            objectAlreadyUsed = true;
+        }
+    }
+
+    private boolean isComment(String currentLine) {
+        return (currentLine.trim().isEmpty() || currentLine.startsWith("#"));
     }
 }

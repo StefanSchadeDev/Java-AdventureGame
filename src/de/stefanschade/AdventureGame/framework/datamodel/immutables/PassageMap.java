@@ -11,15 +11,15 @@ import java.util.logging.Logger;
 public class PassageMap {
 
     private static final Logger logger = Logger.getLogger(PassageMap.class.getName());
-    private Map<Integer, Directions> exitsByOrigin;
+    private Map<Integer, PassagesOneRoom> exitsByOrigin;
 
-    public PassageMap(Map<Integer, Directions> exitsByOrigintmp) {
+    public PassageMap(Map<Integer, PassagesOneRoom> exitsByOrigintmp) {
         this.exitsByOrigin = new HashMap<>(exitsByOrigintmp);
     }
 
-    private Directions getPassage(int i) {
+    private PassagesOneRoom getPassage(int i) {
         if (!exitsByOrigin.containsKey(i)) {
-            logger.log(Level.SEVERE, "Directions " + i + " not found in map " + exitsByOrigin);
+            logger.log(Level.SEVERE, "PassagesOneRoom " + i + " not found in map " + exitsByOrigin);
             return null;
         } else {
             return exitsByOrigin.get(i);

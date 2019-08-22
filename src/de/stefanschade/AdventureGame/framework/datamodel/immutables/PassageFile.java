@@ -11,19 +11,21 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class PassageFile {
+class PassageFile {
 
     // static constants
     private static final Logger LOGGER = Logger.getLogger(PassageFile.class.getName());
     private static final String CSV_SEPERATOR = ";";
+
     // object has to be instantiated for each parse
     private boolean objectAlreadyUsed = false;
+
     // containers collect data to populate immutable in one go
-    private Map<Integer, Directions> tmpDataForPassageMap = new HashMap<>();
+    private Map<Integer, PassagesOneRoom> tmpDataForPassageMap = new HashMap<>();
     private Map<String, Passage> tmpDataForDirections = new HashMap<>();
 
     // temporary information on parsing operation exceeding single line scope
-    private Set<Integer> roomsOfOriginAlreadyProcessed = new HashSet<>();
+    private Set<Integer> roomsAlreadyProcessed = new HashSet<>();
     private Integer roomOfOriginLastLine = null;
     private boolean firstLineOfBlockFlag = true;
     private boolean eofReachedFlag = false;
@@ -34,14 +36,17 @@ public class PassageFile {
     private String currentDirectionString = null;
     private Integer currentDestinationRoom = null;
 
-    private String filename;
+    private final String filename;
     private int currentLine = 0;
 
-    public PassageFile(String filename) {
+    PassageFile(String filename) {
         this.filename = filename;
     }
 
-    public PassageMap readMapFromFile() throws IOException {
+    PassageMap readMapFromFile() throws IOException {
+
+        LOGGER.log(Level.INFO, "parsing file: " + filename);
+
         ensureThisObjectOnlyUsedOnce();
         BufferedReader br = null;
         try {
@@ -53,12 +58,9 @@ public class PassageFile {
                     parse(currentLine);
                     setTempFieldsAccordingToCurrentParse();
                 }
-                populateTemporaryObjects();  //  also necessary at EOF
+                populateTemporaryObjectsAfterParse();  //  also necessary at EOF to process last line
                 prepareTempFieldsForNextParse(); // does not harm at EOF
             }
-        } catch (IOException e) {
-            LOGGER.log(Level.SEVERE, "IO Exception when accessing PassageFile " + filename);
-            throw e;
         } finally {
             br.close();
         }
@@ -75,9 +77,9 @@ public class PassageFile {
 
     private void setTempFieldsAccordingToCurrentParse() {
         firstLineOfBlockFlag = (currentRoomOfOrigin != roomOfOriginLastLine);
-        previousBlockFinishedFlag = (firstLineOfBlockFlag && roomsOfOriginAlreadyProcessed.size() > 0);
+        previousBlockFinishedFlag = (firstLineOfBlockFlag && roomsAlreadyProcessed.size() > 0);
 
-        if (roomsOfOriginAlreadyProcessed.contains(currentRoomOfOrigin)) {
+        if (roomsAlreadyProcessed.contains(currentRoomOfOrigin)) {
             if (firstLineOfBlockFlag) {
 
                 String errormsg = "file " + filename + " room of origin " + currentRoomOfOrigin + " in line " + currentLine
@@ -87,7 +89,7 @@ public class PassageFile {
                 throw new IllegalArgumentException(errormsg);
             }
         } else {
-            roomsOfOriginAlreadyProcessed.add(currentRoomOfOrigin);
+            roomsAlreadyProcessed.add(currentRoomOfOrigin);
         }
     }
 
@@ -95,19 +97,17 @@ public class PassageFile {
         return (currentLine.trim().isEmpty() || currentLine.startsWith("#"));
     }
 
-    private void populateTemporaryObjects() {
+    private void populateTemporaryObjectsAfterParse() {
 
         if (previousBlockFinishedFlag) {  // roomOfOrigin is completed
             // instantiate immutable for this roomOfOrigin and add it to the temporary Map
-            Directions dir = new Directions(roomOfOriginLastLine, tmpDataForDirections);
+            PassagesOneRoom dir = new PassagesOneRoom(roomOfOriginLastLine, tmpDataForDirections);
             tmpDataForPassageMap.put(roomOfOriginLastLine, dir);
             // flush temporary object
             tmpDataForDirections = new HashMap<>();
         }
-
         // in any case process current line
         tmpDataForDirections.put(currentDirectionString, new Passage(currentDestinationRoom));
-
     }
 
     private void prepareTempFieldsForNextParse() {
@@ -116,7 +116,6 @@ public class PassageFile {
     }
 
     private boolean isEOF(String currentLine) {
-
         if (currentLine == null) {
             LOGGER.log(Level.FINE, filename + " EOF reached");
             eofReachedFlag = true;
@@ -131,11 +130,9 @@ public class PassageFile {
 
         LOGGER.log(Level.FINEST, "parsing line " + this.currentLine++);
         String[] inputCell = currentLine.split(CSV_SEPERATOR);
-
         currentRoomOfOrigin = Integer.parseInt(inputCell[0]);
         currentDirectionString = inputCell[1].trim();
         currentDestinationRoom = Integer.parseInt(inputCell[2]);
-
         return;
     }
 }
