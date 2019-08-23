@@ -11,35 +11,35 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class RoomFile {
+@Deprecated
+public class OLDRoomMapCSV {
 
     // static constants
-    private static final Logger LOGGER = Logger.getLogger(RoomFile.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(OLDRoomMapCSV.class.getName());
     private static final String CSV_SEPERATOR = ";";
-    private final String filename;
 
     // object has to be instantiated for each parse
     private boolean objectAlreadyUsed = false;
+    private final String filename;
+    // containers collect data to populate immutable in one go
+    private Map<Integer, Room> tmpRoomMap = new HashMap<>();
 
     // fields to store the parse info of each line
     private Integer roomNumber = null;
     private String roomName = null;
     private String roomDescription = null;
-    private int currentLine = 0;
-
-    // containers collect data to populate immutable in one go
-    private Map<Integer, Room> tmpRoomMap = new HashMap<>();
     private Room tmpRoom;
-
+    private int lineCounter = 0;
+    private boolean eofReachedFlag = false;
     // temporary information on parsing operation exceeding single line scope
     private Set<Integer> roomsAlreadyProcessed = new HashSet<>();
-    private boolean eofReachedFlag = false;
 
-    RoomFile(String filename) {
+
+    OLDRoomMapCSV(String filename) {
         this.filename = filename;
     }
 
-    RoomMap readMapFromFile() throws IOException {
+    RoomMap getFromCSV() throws IOException {
 
         LOGGER.log(Level.INFO, "parsing file: " + filename);
 
@@ -65,7 +65,7 @@ public class RoomFile {
     }
 
     private void parse(String currentLine) {
-        LOGGER.log(Level.FINEST, "parsing line " + this.currentLine++);
+        LOGGER.log(Level.FINEST, "parsing line " + this.lineCounter++);
         String[] inputCell = currentLine.split(CSV_SEPERATOR);
         roomNumber = Integer.parseInt(inputCell[0]);
         roomName = inputCell[1].trim();
@@ -73,14 +73,13 @@ public class RoomFile {
     }
 
     private void prepareTempFieldsForNextParse() {
-        tmpRoom = new Room(roomNumber, roomName, roomDescription);
     }
 
     private void setTempFieldsAccordingToCurrentParse() {
 
         if (roomsAlreadyProcessed.contains(roomNumber)) {
 
-            String errormsg = "file " + filename + " room " + roomNumber + " in line " + currentLine
+            String errormsg = "file " + filename + " room " + roomNumber + " in line " + lineCounter
                     + " has already been processed. Double entries are not allowed";
 
             LOGGER.log(Level.SEVERE, errormsg);
@@ -108,7 +107,7 @@ public class RoomFile {
 
     private void ensureThisObjectOnlyUsedOnce() {
         if (objectAlreadyUsed) {
-            throw new IllegalArgumentException("PassageFile Object has to be instantiated for each parse operation");
+            throw new IllegalArgumentException("OLDPassageMapCSV Object has to be instantiated for each parse operation");
         } else {
             objectAlreadyUsed = true;
         }
