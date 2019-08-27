@@ -4,6 +4,7 @@ import de.stefanschade.AdventureGame.framework.datamodel.StateOfGame;
 import de.stefanschade.AdventureGame.framework.datamodel.StateOfPlayer;
 import de.stefanschade.AdventureGame.framework.datamodel.immutables.World;
 
+import java.io.IOException;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
 import java.util.logging.Level;
@@ -16,7 +17,8 @@ public class Game {
     private StateOfPlayer playerState = new StateOfPlayer();
     private StateOfGame gameState = new StateOfGame();
 
-
+    public Game() throws IOException {
+    }
 
     public void play() {
         Scanner sc = new Scanner(System.in);

@@ -2,8 +2,7 @@ package de.stefanschade.AdventureGame.framework.datamodel.immutables;
 
 import de.stefanschade.AdventureGame.framework.datamodel.StateOfPlayer;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.io.IOException;
 import java.util.logging.Logger;
 
 public final class World {
@@ -14,30 +13,13 @@ public final class World {
     private static final String FILE_ROOMS = "./resources/Rooms.csv";
     private static final String FILE_PASSAGES = "./resources/Passages.csv";
 
-    private final Rooms roomsInWorld;
-    private final Passages passagesInWorld;
+    private final RoomMap roomsInWorld;
+    private final PassageMap passagesInWorld;
 
-    public World() {
-        roomsInWorld = new Rooms(FILE_ROOMS);
-        passagesInWorld = new Passages(FILE_PASSAGES);
-    }
+    public World() throws IOException {
 
-    private static void captureRoom
-            (Map<Integer, Rooms.RoomEntry> rooms, Map<Integer, Passages.ExitsForOneOrigin> passages, Integer
-                    id, Integer north, Integer east, Integer west, Integer south, String name, String description) {
-        Map<String, Passages.Exit> exits = new HashMap<>();
-        if (north != null) exits.put("north", new Passages.Exit(north));
-        if (east != null) exits.put("east", new Passages.Exit(east));
-        if (west != null) exits.put("west", new Passages.Exit(west));
-        if (south != null) exits.put("south", new Passages.Exit(south));
-        Rooms.RoomEntry room;
-        room = new Rooms.RoomEntry(id, name, description);
-        rooms.put(id, room);
-        passages.put(id, new Passages.ExitsForOneOrigin(id, exits));
-    }
-
-    public int getDestination(int currentRoom, String direction) {
-        return this.passagesInWorld.getDestination(currentRoom, direction);
+        roomsInWorld = new RoomMapCSV(FILE_ROOMS).getFromCSV();
+        passagesInWorld = new PassageMapCSV(FILE_PASSAGES).getFromCSV();
     }
 
     public boolean isValidPassage(StateOfPlayer player, String direction) {
